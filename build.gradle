@@ -1,0 +1,47 @@
+apply plugin: 'java'
+apply plugin: 'groovy'
+apply plugin: 'eclipse'
+apply plugin:'application'
+
+sourceCompatibility = 1.7
+
+version = '1.0'
+
+mainClassName = "au.net.asoftware.metamovie.Main"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    groovy group: 'org.codehaus.groovy', name: 'groovy', version: '1.8.6'
+	compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.5.2'
+	compile 'com.google.code.gson:gson:2.2.2'
+}
+
+test {
+    systemProperties 'property': 'value'
+}
+
+uploadArchives {
+    repositories {
+       flatDir {
+           dirs 'repos'
+       }
+    }
+}
+
+
+jar {
+	manifest {
+		attributes 'Implementation-Title': 'MetaMovie - Generate Boxee Compatable Directory Structure & NFO File', 'Implementation-Version': version
+		attributes 'Main-Class': mainClassName
+		
+		//def manifestClasspath = configurations.compile.collect { '../lib/' + it.getName() }.join(' ')
+		//attributes 'Class-Path': manifestClasspath
+		
+		
+	}
+}
+
+defaultTasks 'run'
