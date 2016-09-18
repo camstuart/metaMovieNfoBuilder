@@ -1,37 +1,22 @@
 package au.net.asoftware.metamovie
 
-
-
 class Main {
 
 	static main(args) {
-
-		//def config = new ConfigSlurper().parse(new File('resources/metaMovieNfoBuilder.ini').toURI().toURL())
-		
-		//println "Config: " + config.base.work.directory
-		
 		OpenImdbApi oimdb = new OpenImdbApi()
 		def OpenImdbMovie openImdbMovie
-		
-		// C:\Users\cam\Desktop\Rob\Alex Cross[2012].avi
 		
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in))
 		print "Enter Movie ID or Name: "
 		
-		//def String input = "tt0087928"
-		
 		String input = br.readLine()
 		println "input was:${input}:"
-		
 		
 		if (input.toLowerCase().startsWith("tt")) {	
 			// Find the movie by ID:
 			println "Search on imdbID: ${input}"
-			
 			openImdbMovie = oimdb.getByImdbId(input.trim())
-			
 			println "Got back movie title: ${openImdbMovie.getTitle()}"
-			
 			
 		} else {
 			def File movieFile =  new File(input)
@@ -41,11 +26,9 @@ class Main {
 				
 				println "Search on filename: " + movieFile.getName()
 				
-				
 				def String rawTitle = movieFile.getName()
 				rawTitle = rawTitle.replace("[", "(")
 				rawTitle = rawTitle.replace("]", ")")
-				
 				
 				def regex = /Alex/
 				def matcher = ( rawTitle =~ regex )
@@ -56,8 +39,6 @@ class Main {
 					println "m " + matcher[0][0]
 				}
 				
-				
-				//def List searchResultsList = oimdb.findByKeyword(input)
 				openImdbMovie = oimdb.findByTitleAndYear("Alex.Cross", "2012")
 				
 				if (openImdbMovie.getTitle().equals("")) {
@@ -68,42 +49,28 @@ class Main {
 				println "Year : " + openImdbMovie.getYear()
 				println "ID   : " + openImdbMovie.getImdbID()
 				
-				//def resultChoices = []
-				//def int i = 1
-				//for (def Search r in searchResultsList) {
-				//	println "Search Result [${i}]: ${r.getTitle()} (${r.getYear()})"
-				//	i++
-				//}
-				
-				//if (i == 2) {
-				//	println "Single result, using that one"
-				//} else {
-				//	println "which one was it?"
-				//}
 			} else {
 				// Do a plain search to lookup movie
-				
-				println "Search on string: [${input}]"
-			
+				println "Search on string: [${input}] is not supported in this version of metaMovieNfoBuilder"
 			}
-			
 		}
 		
-		
 		// Generate directory & nfo and folder.jpg
-		
 		def directoryName = openImdbMovie.getTitle().trim().replace(":", "").replace(" ", ".") + ".(" + openImdbMovie.getYear() + ")"
 		
-		def File ouputPath = new File("C:/tmp/_boxxee/" + directoryName)
+		def File ouputPath = new File(System.getProperty("user.home") + "/_boxee/" + directoryName)
 		if (!ouputPath.exists()) {
 			ouputPath.mkdirs()
 		}
 
-		def file = new FileOutputStream(ouputPath.getAbsolutePath() + "/folder.jpg")
-		def out = new BufferedOutputStream(file)
-		out << new URL(openImdbMovie.getPoster()).openStream()
-		out.close()
-
+		try {
+			def file = new FileOutputStream(ouputPath.getAbsolutePath() + "/folder.jpg")
+			def out = new BufferedOutputStream(file)
+			out << new URL(openImdbMovie.getPoster()).openStream()
+			out.close()
+		} catch(Exception ex) {
+			println("Unable to get movie poster: " + ex.toString())
+		}
 
 		def actors = []
 		actors = openImdbMovie.getActors().trim().split(",")
@@ -127,7 +94,7 @@ class Main {
     <rating>${openImdbMovie.getImdbRating().trim()}</rating>
     <year>${openImdbMovie.getYear().trim()}</year>
     <outline>${openImdbMovie.getPlot().trim()}</outline>
-    <runtime>${convertRunTime(openImdbMovie.getRuntime().trim())}</runtime>
+    <runtime>${openImdbMovie.getRuntime().trim()}</runtime>
     <thumb>folder.jpg</thumb>
     <mpaa>${openImdbMovie.getRated().trim()}</mpaa>
     <id>${openImdbMovie.getImdbID()}</id>
@@ -141,6 +108,7 @@ class Main {
 		
 					
 		println "Created output: ${ouputPath.getAbsolutePath()}"
+		System.exit(0)
 		
 		input = br.readLine()
 		
@@ -159,6 +127,7 @@ class Main {
 			//OpenImdbMovie movie = oimdb.findByTitleAndYear(r.getTitle(), r.getYear())
 			
 			println "Detail Runtime: " + convertRunTime(openImdbMovie.getRuntime())
+			println "Detail Runtime: " + openImdbMovie.getRuntime()
 			println "Detail Rating : " + openImdbMovie.getRated()
 			
 		}
